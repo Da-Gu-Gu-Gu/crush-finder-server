@@ -5,8 +5,21 @@ const UserSchema=new mongoose.Schema({
         type:String,
         required:true
     },
+    name:{
+        type:String,
+    },
+    email:{
+        type:String,
+    },
+    purl:{
+        type:String
+    },
+    img:{
+        type:String
+    },
     cl:{
         type:Array,
+        default:[]
     }
 })
 
