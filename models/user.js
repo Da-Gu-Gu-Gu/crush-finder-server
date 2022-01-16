@@ -7,15 +7,15 @@ const UserSchema=new mongoose.Schema({
     },
     name:{
         type:String,
+        required:true
     },
     email:{
         type:String,
-    },
-    purl:{
-        type:String
+       
     },
     img:{
-        type:String
+        type:String,
+     
     },
     cl:{
         type:Array,

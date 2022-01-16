@@ -1,24 +1,18 @@
-const res = require('express/lib/response');
 const passport = require('passport')
 const FacebookStrategy = require('passport-facebook')
 const User = require('../models/user')
-// const 
+const jwt=require('jsonwebtoken')
+
 
 // serialize the user.id to save in the cookie session
 // so the browser will remember the user when login
-passport.serializeUser((user, done) => {
-    done(null, user.id);
-  })
+passport.serializeUser(function (user, cb) {
+  cb(null, user)
+})
 
-passport.deserializeUser((id, done) => {
-    User.findById(id)
-      .then(user => {
-        done(null, user);
-      })
-      .catch(e => {
-        done(new Error("Failed to deserialize an user"));
-      });
-  })
+passport.deserializeUser(function (obj, cb) {
+  cb(null, obj)
+})
 
 
 passport.use(new FacebookStrategy({
@@ -26,26 +20,30 @@ passport.use(new FacebookStrategy({
     clientSecret: process.env.FACEBOOK_APP_SECRET,
     callbackURL: process.env.FACEBOOK_CALLBACK_URL,
     enableProof: true,
-    profileFields: ['email', 'id','friends','picture','link','displayName'] 
+    profileFields: ['email', 'id','friends','picture','displayName'] 
 },
-    async (accessToken, refreshToken, profile, done,req,res)=> {
-      console.log(accessToken)
-        console.log(profile)
-        let session=req.session
-        session.profile=profile
+    async (accessToken, refreshToken, profile, done)=> {
+
         const currentUser = await User.findOne({ fbId: profile.id })
         if (!currentUser) {
             const newUser = await new User({
                 fbId: profile.id,
                 name:profile.displayName,
                 email:profile.email,
-                img:profile.picture
+                img:profile.photos[0].value
             
             }).save()
             if (newUser) {
-                done(null, newUser)
+                done(null, profile)
             }
         }
-        done(null, currentUser)
+   
+        
+          const token=jwt.sign({
+         token:accessToken},
+          process.env.JWT_SECRET
+        )
+        profile.token=token
+        done(null, profile)
 
     }))

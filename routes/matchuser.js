@@ -22,14 +22,24 @@ router.get('/me',async(req,res)=>{
     catch(err){console.log(err)}
 })
 
+//crush match fix lr sit
 router.post('/',async(req,res)=>{
     try{
-        const newMatchUser=await new MatchUser({
-            matchfrom:req.body.matchfrom,  //need to change
-            matchto:req.body.matchto
+        
+        //you c ka ya tl crush list htl ka hr twy ta ku chin sit ml 
+        //crush htl ka ll sit ml tuu sin add ml ok?
+        let foundCrush=false
+        const crush=await User.findOne({fbId:crush})
+        crush.cl.map(z=>req.body.you==z?foundCrush=true:null)
+        
+        if(foundCrush){
+        await new MatchUser({
+            matchfrom:req.body.you,  
+            matchto:req.body.crush
         }).save()
 
-        res.status(200).json('successfully created')
+        res.status(200).json('found crush')
+    }
     }
     catch(err){console.log(err)}
 })

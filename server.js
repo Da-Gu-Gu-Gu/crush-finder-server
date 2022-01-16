@@ -4,18 +4,12 @@ const mongoose=require('mongoose')
 const cors=require('cors')
 const dotenv=require('dotenv').config()
 const userRouter=require('./routes/user')
+const passport=require('passport')
 const matchuserRouter=require('./routes/matchuser')
-const session = require('express-session')
 
 
-app.use(session({
-    secret: process.env.SESSION_SECRET,
-    saveUninitialized: false,
-    resave: true,
-    cookie: {
-      maxAge: 24 * 60 * 60 * 365 * 1000
-    }
-  }))
+// app.use(passport.initialize());
+// app.use(passport.session());
 app.use(express.json())
 app.use(cors())
 
