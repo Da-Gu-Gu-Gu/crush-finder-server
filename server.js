@@ -6,6 +6,7 @@ const dotenv=require('dotenv').config()
 const passport=require('passport')
 const userRouter=require('./routes/user')
 const matchuserRouter=require('./routes/matchuser')
+const adminRouter=require('./routes/admin')
 
 
 // app.use(passport.initialize());
@@ -16,6 +17,7 @@ app.use(cors())
 //router
 app.use('/',userRouter)
 app.use('/match',matchuserRouter)
+app.use('/admin',adminRouter)
 
 mongoose.connect(process.env.MONGOOSE)
 .then(()=>console.log('good'))

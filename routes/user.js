@@ -20,8 +20,6 @@ router.get('/login/facebook/callback',
       token:req.user.id},
        process.env.JWT_SECRET
      )
-
-    console.log(req.user)
     res.status(200).json({"token":jwtToken})
   });
 
@@ -49,8 +47,7 @@ router.put('/addcrush',facebookMiddleware,async(req,res)=>{
     
     const you=await User.findOne({fbId:req.body.id})
     const crush=await User.findOne({fbId:req.body.crushId})
-    console.log(you)
-    console.log(crush)
+ 
     you.cl.map(x=>{x==crush.fbId?yourSide=true:null})
     crush.cl.map(y=>{y==you.fbId?crushSide=true:null})
         
@@ -60,6 +57,11 @@ router.put('/addcrush',facebookMiddleware,async(req,res)=>{
         matchfrom:you._id,  
         matchto:crush._id
     }).save()
+
+    await new MatchUser({
+      matchfrom:crush._id,  
+      matchto:you._id
+  }).save()
 
     res.status(200).json('found crush')
   }else{
