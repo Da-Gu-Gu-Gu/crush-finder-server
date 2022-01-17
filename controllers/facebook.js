@@ -1,7 +1,7 @@
 const passport = require('passport')
 const FacebookStrategy = require('passport-facebook')
 const User = require('../models/user')
-const jwt=require('jsonwebtoken')
+
 
 
 // serialize the user.id to save in the cookie session
@@ -39,11 +39,7 @@ passport.use(new FacebookStrategy({
         }
    
         
-          const token=jwt.sign({
-         token:accessToken},
-          process.env.JWT_SECRET
-        )
-        profile.token=token
+        
         done(null, profile)
 
     }))

@@ -3,6 +3,8 @@ const router=express.Router()
 const passport=require('passport')
 const FacebookController=require('../controllers/facebook')
 const User = require('../models/user')
+const MatchUser=require('../models/matchusers')
+const jwt=require('jsonwebtoken')
 const facebookMiddleware=require('../middleware/facebookkuser')
 
 //facebook login 
@@ -14,8 +16,13 @@ router.get('/login/facebook', passport.authenticate('facebook', {
 router.get('/login/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/fail', failureMessage: true }),
   function(req, res) {
-    console.log(req.user.token)
-    res.send(req.user)
+    const jwtToken=jwt.sign({
+      token:req.user.id},
+       process.env.JWT_SECRET
+     )
+
+    console.log(req.user)
+    res.status(200).json({"token":jwtToken})
   });
 
 
@@ -38,8 +45,27 @@ router.put('/addcrush',facebookMiddleware,async(req,res)=>{
       new:true
     })
 
-    res.status(200).json('added CrushList')
-  } catch (error) {
+    let yourSide,crushSide=false
+    
+    const you=await User.findOne({fbId:req.body.id})
+    const crush=await User.findOne({fbId:req.body.crushId})
+    console.log(you)
+    console.log(crush)
+    you.cl.map(x=>{x==crush.fbId?yourSide=true:null})
+    crush.cl.map(y=>{y==you.fbId?crushSide=true:null})
+        
+  
+    if(yourSide && crushSide){
+    await new MatchUser({
+        matchfrom:you._id,  
+        matchto:crush._id
+    }).save()
+
+    res.status(200).json('found crush')
+  }else{
+    res.status(200).json('not match')
+}
+} catch (error) {
     console.log(error)
   }
 })

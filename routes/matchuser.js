@@ -2,6 +2,8 @@ const express=require('express')
 const router=express.Router()
 const MatchUser=require('../models/matchusers')
 const User=require('../models/user')
+const facebookMiddleware=require('../middleware/facebookkuser')
+const facebookkuser = require('../middleware/facebookkuser')
 
 router.get('/',async(req,res)=>{
     try{
@@ -14,35 +16,16 @@ router.get('/',async(req,res)=>{
 })
 
 //get single
-router.get('/me',async(req,res)=>{
+router.get('/me',facebookMiddleware,async(req,res)=>{
     try{
-        const mematchUser=await MatchUser.findById(req.body.id)
+        if(!req.accesstoken) return res.status(401).json("access denied")
+        const mematchUser=await MatchUser.findOne({matchfrom:req.body.id}).all()
         res.status(200).json(mematchUser)
     }
     catch(err){console.log(err)}
 })
 
-//crush match fix lr sit
-router.post('/',async(req,res)=>{
-    try{
-        
-        //you c ka ya tl crush list htl ka hr twy ta ku chin sit ml 
-        //crush htl ka ll sit ml tuu sin add ml ok?
-        let foundCrush=false
-        const crush=await User.findOne({fbId:crush})
-        crush.cl.map(z=>req.body.you==z?foundCrush=true:null)
-        
-        if(foundCrush){
-        await new MatchUser({
-            matchfrom:req.body.you,  
-            matchto:req.body.crush
-        }).save()
 
-        res.status(200).json('found crush')
-    }
-    }
-    catch(err){console.log(err)}
-})
 
 
 module.exports=router

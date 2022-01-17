@@ -3,8 +3,8 @@ const app=express()
 const mongoose=require('mongoose')
 const cors=require('cors')
 const dotenv=require('dotenv').config()
-const userRouter=require('./routes/user')
 const passport=require('passport')
+const userRouter=require('./routes/user')
 const matchuserRouter=require('./routes/matchuser')
 
 
