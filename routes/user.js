@@ -20,7 +20,7 @@ router.get('/login/facebook/callback',
       token:req.user.id},
        process.env.JWT_SECRET
      )
-    res.status(200).json({"token":jwtToken})
+    res.status(200).json({"token":jwtToken,"user":req.user})
   });
 
 
