@@ -9,15 +9,22 @@ const matchuserRouter=require('./routes/matchuser')
 const adminRouter=require('./routes/admin')
 
 
-// app.use(passport.initialize());
-// app.use(passport.session());
+var corsOption = {
+  origin: true,
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+};
+app.use(cors(corsOption))
+
 app.use(express.json())
-app.use(cors())
+
 
 //router
 app.use('/',userRouter)
 app.use('/match',matchuserRouter)
 app.use('/admin',adminRouter)
+
+
 
 mongoose.connect(process.env.MONGOOSE)
 .then(()=>console.log('good'))

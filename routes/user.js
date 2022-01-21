@@ -6,9 +6,10 @@ const User = require('../models/user')
 const MatchUser=require('../models/matchusers')
 const jwt=require('jsonwebtoken')
 const facebookMiddleware=require('../middleware/facebookkuser')
+const cors=require('cors')
 
 //facebook login 
-router.get('/login/facebook',passport.authenticate("facebook"))
+// router.get('/login/facebook',cors(),passport.authenticate("facebook"))
 router.get('/login/facebook', passport.authenticate('facebook', {
     scope: [ 'email', 'public_profile','user_friends' ]
   }));
@@ -17,10 +18,14 @@ router.get('/login/facebook/callback',
   passport.authenticate('facebook', { failureRedirect: '/fail', failureMessage: true }),
   function(req, res) {
     const jwtToken=jwt.sign({
-      token:req.user.id},
+      token:req.user.id,
+      profile:req.user},
        process.env.JWT_SECRET
      )
-    res.status(200).json({"token":jwtToken,"user":req.user})
+     console.log(jwtToken)
+    //  res.redirect('/')
+    //  res.redirect(`${process.env.FRONTEND_HOST}/${jwtToken}`)
+    // res.status(200).json({"token":jwtToken,"user":req.user})
   });
 
 
