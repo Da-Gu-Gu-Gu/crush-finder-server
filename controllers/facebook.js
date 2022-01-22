@@ -18,13 +18,13 @@ passport.deserializeUser(function (obj, cb) {
 passport.use(new FacebookStrategy({
     clientID: process.env.FACEBOOK_CLIENT_ID,
     clientSecret: process.env.FACEBOOK_APP_SECRET,
-    callbackURL: process.env.FACEBOOK_CALLBACK_URL,
-    enableProof: true,
+    callbackURL:'login/facebook/callback',
     profileFields: ['email', 'id','friends','picture','displayName'] 
 },
     async (accessToken, refreshToken, profile, done)=> {
 
         const currentUser = await User.findOne({ fbId: profile.id })
+        
         if (!currentUser) {
             const newUser = await new User({
                 fbId: profile.id,

@@ -9,29 +9,62 @@ const facebookMiddleware=require('../middleware/facebookkuser')
 const cors=require('cors')
 
 //facebook login 
-// router.get('/login/facebook',cors(),passport.authenticate("facebook"))
+// router.get('/login/facebook',passport.authenticate("facebook"))
 router.get('/login/facebook', passport.authenticate('facebook', {
     scope: [ 'email', 'public_profile','user_friends' ]
-  }));
+  }))
 
-router.get('/login/facebook/callback',
-  passport.authenticate('facebook', { failureRedirect: '/fail', failureMessage: true }),
-  function(req, res) {
+
+ router.get('/login/success',(req,res)=>{
+   if(req.user){
     const jwtToken=jwt.sign({
-      token:req.user.id,
-      profile:req.user},
-       process.env.JWT_SECRET
-     )
+            token:req.user.id,
+            profile:req.user},
+             process.env.JWT_SECRET
+           )
      console.log(jwtToken)
-    //  res.redirect('/')
-    //  res.redirect(`${process.env.FRONTEND_HOST}/${jwtToken}`)
-    // res.status(200).json({"token":jwtToken,"user":req.user})
-  });
+     res.status(200).json({
+       success:true,
+       message:'success',
+       user:jwtToken
+     })
+   }
+ }) 
+
+ router.get('/logout',(req,res)=>{
+   req.logout()
+   res.redirect(process.env.FRONTEND_URL)
+ })
+
+  router.get(
+    "/login/facebook/callback",
+    passport.authenticate("facebook", {
+      successRedirect: process.env.FRONTEND_URL,
+      failureRedirect: "/fail"
+    })
+  );
+
+
+// router.get('/login/facebook/callback',
+//   passport.authenticate('facebook', { failureRedirect: '/fail', failureMessage: true }),
+//   function(req, res) {
+//     const jwtToken=jwt.sign({
+//       token:req.user.id,
+//       profile:req.user},
+//        process.env.JWT_SECRET
+//      )
+//      console.log(jwtToken)
+//      res.status(200).json({"token":jwtToken})
+//   })
 
 
 
   router.get("/fail", (req, res) => {
     res.send("Failed attempt")
+  })
+
+  router.get("/", (req, res) => {
+    res.send("hh")
   })
   
 

@@ -9,14 +9,27 @@ const matchuserRouter=require('./routes/matchuser')
 const adminRouter=require('./routes/admin')
 
 
-var corsOption = {
-  origin: true,
-  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
-  credentials: true,
-};
-app.use(cors(corsOption))
+//ssl
+// const https = require('https');
+// const fs = require('fs');
+
+// This line is from the Node.js HTTPS documentation.
+// const options = {
+//   key: fs.readFileSync('key.pem'),
+//   cert: fs.readFileSync('cert.pem')
+// };
 
 app.use(express.json())
+app.use(cors({
+  origin:process.env.FRONTEND_URL,
+  methods:'GET,POST,DELETE,PUT',
+  credentials:true
+}))
+
+
+app.use(passport.initialize())
+app.use(passport.session())
+
 
 
 //router
@@ -33,3 +46,7 @@ mongoose.connect(process.env.MONGOOSE)
 app.listen(5000,()=>{
     console.log('server is running')
 })
+
+// https.createServer(options, app).listen(5000,()=>{
+//   console.log('server is running')
+// })
