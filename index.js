@@ -1,5 +1,6 @@
 const express=require('express')
 const app=express()
+const session = require('express-session');
 const mongoose=require('mongoose')
 const cors=require('cors')
 const dotenv=require('dotenv').config()
@@ -27,12 +28,23 @@ app.use(cors({
 }))
 
 
+
+app.use(session({
+  resave: false,
+  saveUninitialized: true,
+  secret: 'SECRET'
+}));
+
+
 app.use(passport.initialize())
 app.use(passport.session())
 
 
 
 //router
+app.get('/test',(req,res)=>{
+  res.send('test')
+})
 app.use('/',userRouter)
 app.use('/match',matchuserRouter)
 app.use('/admin',adminRouter)
