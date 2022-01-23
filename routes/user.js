@@ -10,12 +10,12 @@ const cors=require('cors')
 
 //facebook login 
 // router.get('/login/facebook',passport.authenticate("facebook"))
-router.get('/login/facebook', passport.authenticate('facebook', {
+router.get('/auth/facebook', passport.authenticate('facebook', {
     scope: [ 'email', 'public_profile','user_friends' ]
   }))
 
 
- router.get('/login/success',(req,res)=>{
+ router.get('/auth/success',(req,res)=>{
    if(req.user){
     const jwtToken=jwt.sign({
             token:req.user.id,
@@ -37,7 +37,7 @@ router.get('/login/facebook', passport.authenticate('facebook', {
  })
 
   router.get(
-    "/login/facebook/callback",
+    "/auth/facebook/callback",
     passport.authenticate("facebook", {
       successRedirect: process.env.FRONTEND_URL,
       failureRedirect: "/fail"
