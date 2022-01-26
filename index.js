@@ -10,19 +10,11 @@ const matchuserRouter=require('./routes/matchuser')
 const adminRouter=require('./routes/admin')
 
 
-//ssl
-// const https = require('https');
-// const fs = require('fs');
-
-// This line is from the Node.js HTTPS documentation.
-// const options = {
-//   key: fs.readFileSync('key.pem'),
-//   cert: fs.readFileSync('cert.pem')
-// };
 
 app.use(express.json())
 app.use(cors({
-  origin:process.env.FRONTEND_URL,
+  // origin:process.env.FRONTEND_URL,
+  origin:'*',
   methods:'GET,POST,DELETE,PUT',
   credentials:true
 }))

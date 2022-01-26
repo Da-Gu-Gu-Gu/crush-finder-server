@@ -1,124 +1,97 @@
-const express=require('express')
-const router=express.Router()
-const passport=require('passport')
-const FacebookController=require('../controllers/facebook')
+const express = require('express')
+const router = express.Router()
+const passport = require('passport')
+const FacebookController = require('../controllers/facebook')
 const User = require('../models/user')
-const MatchUser=require('../models/matchusers')
-const jwt=require('jsonwebtoken')
-const facebookMiddleware=require('../middleware/facebookkuser')
-const cors=require('cors')
-
-//facebook login 
-// router.get('/login/facebook',passport.authenticate("facebook"))
-router.get('/auth/facebook', passport.authenticate('facebook', {
-    scope: [ 'email', 'public_profile','user_friends' ]
-  }))
+const MatchUser = require('../models/matchusers')
+const jwt = require('jsonwebtoken')
+const facebookMiddleware = require('../middleware/facebookkuser')
 
 
- router.get('/auth/success',(req,res)=>{
-   if(req.user){
-    const jwtToken=jwt.sign({
-            token:req.user.id,
-            profile:req.user},
-             process.env.JWT_SECRET
-           )
-     console.log(jwtToken)
-     res.status(200).json({
-       success:true,
-       message:'success',
-       user:jwtToken
-     })
-   }
- }) 
+router.get("/", (req, res) => {
+  res.send("hh")
+})
 
- router.get('/logout',(req,res)=>{
-   req.logout()
-   res.redirect(process.env.FRONTEND_URL)
- })
+//user create
+router.post('/user', async (req, res) => {
+  try {
+    const savedUser = await User.findOne({ fbId: req.body.fbId })
+    const jwtToken = jwt.sign({
+      token: req.body.fbId,
+      profile: req.body.fbId
+    },
+      process.env.JWT_SECRET
+    )
 
-  router.get(
-    "/auth/facebook/callback",
-    passport.authenticate("facebook", {
-      successRedirect: process.env.FRONTEND_URL,
-      failureRedirect: "/fail"
+    if (!savedUser) {
+      const newUser = await new User({
+        fbId: req.body.fbId,
+        name: req.body.name,
+        email: req.body.email,
+        img: req.body.img
+      }).save()
+    }
+    res.status(200).json({
+      message: jwtToken
     })
-  );
 
-
-// router.get('/login/facebook/callback',
-//   passport.authenticate('facebook', { failureRedirect: '/fail', failureMessage: true }),
-//   function(req, res) {
-//     const jwtToken=jwt.sign({
-//       token:req.user.id,
-//       profile:req.user},
-//        process.env.JWT_SECRET
-//      )
-//      console.log(jwtToken)
-//      res.status(200).json({"token":jwtToken})
-//   })
-
-
-
-  router.get("/fail", (req, res) => {
-    res.send("Failed attempt")
-  })
-
-  router.get("/", (req, res) => {
-    res.send("hh")
-  })
-  
-
+  } catch (error) {
+    res.status(401).json({
+      message: 'error'
+    })
+  }
+})
 
 //custom part
-router.put('/addcrush',facebookMiddleware,async(req,res)=>{
+router.put('/addcrush', facebookMiddleware, async (req, res) => {
   try {
-    if(!req.accesstoken) return res.status(401).json("access denied")
-    const preciousCrushList=await User.findOne({fbId:req.body.id})
-    const newCrushList=[...preciousCrushList.cl,req.body.crushId]
-    await User.findOneAndUpdate({fbId:req.body.id},{
-      cl:newCrushList
-    },{
-      new:true
+    if (!req.accesstoken) return res.status(401).json("access denied")
+    const preciousCrushList = await User.findOne({ fbId: req.body.id })
+    const newCrushList = [...preciousCrushList.cl, req.body.crushId]
+    await User.findOneAndUpdate({ fbId: req.body.id }, {
+      cl: newCrushList
+    }, {
+      new: true
     })
 
-    let yourSide,crushSide=false
-    
-    const you=await User.findOne({fbId:req.body.id})
-    const crush=await User.findOne({fbId:req.body.crushId})
- 
-    you.cl.map(x=>{x==crush.fbId?yourSide=true:null})
-    crush.cl.map(y=>{y==you.fbId?crushSide=true:null})
-        
-  
-    if(yourSide && crushSide){
-    await new MatchUser({
-        matchfrom:you._id,  
-        matchto:crush._id
-    }).save()
+    let yourSide, crushSide = false
 
-    await new MatchUser({
-      matchfrom:crush._id,  
-      matchto:you._id
-  }).save()
+    const you = await User.findOne({ fbId: req.body.id })
+    const crush = await User.findOne({ fbId: req.body.crushId })
 
-    res.status(200).json('found crush')
-  }else{
-    res.status(200).json('not match')
-}
-} catch (error) {
+    you.cl.map(x => { x == crush.fbId ? yourSide = true : null })
+    crush.cl.map(y => { y == you.fbId ? crushSide = true : null })
+
+
+    if (yourSide && crushSide) {
+      await new MatchUser({
+        matchfrom: you._id,
+        matchto: crush._id
+      }).save()
+
+      await new MatchUser({
+        matchfrom: crush._id,
+        matchto: you._id
+      }).save()
+
+      res.status(200).json('found crush')
+    } else {
+      res.status(200).json('not match')
+    }
+  } catch (error) {
     console.log(error)
   }
 })
 
-router.put('/removecrush',facebookMiddleware,async(req,res)=>{
+router.put('/removecrush', facebookMiddleware, async (req, res) => {
   try {
-    if(!req.accesstoken) return res.status(401).json("access denied")
-    const preciourCrushList=await User.findOne({fbId:req.body.id})
-    const newCrushList=preciourCrushList.cl.filter(x=>x!=req.body.crushId)
-    await User.findOneAndUpdate({fbId:req.body.id},{
-      cl:newCrushList,
-    },{
-      new:true
+    if (!req.accesstoken) return res.status(401).json("access denied")
+    const preciourCrushList = await User.findOne({ fbId: req.body.id })
+    const newCrushList = preciourCrushList.cl.filter(x => x != req.body.crushId)
+    await User.findOneAndUpdate({ fbId: req.body.id }, {
+      cl: newCrushList,
+    }, {
+      new: true
     })
     res.status(200).json('removed CrushList')
   } catch (error) {
@@ -126,14 +99,14 @@ router.put('/removecrush',facebookMiddleware,async(req,res)=>{
   }
 })
 
-router.get('/mycrushlist',facebookMiddleware,async(req,res)=>{
+router.get('/mycrushlist', facebookMiddleware, async (req, res) => {
   try {
-    if(!req.accesstoken) return res.status(401).json("access denied")
-      const crushList=await User.findOne({fbId:req.body.id})
-      res.status(200).json(crushList.cl)
+    if (!req.accesstoken) return res.status(401).json("access denied")
+    const crushList = await User.findOne({ fbId: req.body.id })
+    res.status(200).json(crushList.cl)
   } catch (error) {
-      console.log(error)
+    console.log(error)
   }
 })
 
-module.exports=router
+module.exports = router
