@@ -99,7 +99,7 @@ router.put('/removecrush', facebookMiddleware, async (req, res) => {
   }
 })
 
-router.get('/mycrushlist', facebookMiddleware, async (req, res) => {
+router.post('/mycrushlist', facebookMiddleware, async (req, res) => {
   try {
     if (!req.accesstoken) return res.status(401).json("access denied")
     const crushList = await User.findOne({ fbId: req.body.id })
