@@ -9,10 +9,11 @@ const adminMiddleware=require('../middleware/admin')
 
 
 //get single
-router.get('/me',facebookMiddleware,async(req,res)=>{
+router.post('/me',facebookMiddleware,async(req,res)=>{
     try{
         if(!req.accesstoken) return res.status(401).json("access denied")
-        const mematchUser=await MatchUser.find({matchfrom:req.body.id}).populate('matchfrom').populate('matchto')
+        const me=await User.findOne({fbId:req.body.id})
+        const mematchUser=await MatchUser.find({matchfrom:me._id}).populate('matchfrom').populate('matchto')
         res.status(200).json(mematchUser)
     }
     catch(err){console.log(err)}

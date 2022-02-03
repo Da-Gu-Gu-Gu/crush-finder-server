@@ -8,7 +8,7 @@ const passport=require('passport')
 const userRouter=require('./routes/user')
 const matchuserRouter=require('./routes/matchuser')
 const adminRouter=require('./routes/admin')
-
+const notiRouter=require('./routes/notification')
 
 
 app.use(express.json())
@@ -40,6 +40,7 @@ app.get('/test',(req,res)=>{
 app.use('/',userRouter)
 app.use('/match',matchuserRouter)
 app.use('/admin',adminRouter)
+app.use('/noti',notiRouter)
 
 
 

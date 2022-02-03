@@ -47,6 +47,11 @@ router.put('/addcrush', facebookMiddleware, async (req, res) => {
   try {
     if (!req.accesstoken) return res.status(401).json("access denied")
     const preciousCrushList = await User.findOne({ fbId: req.body.id })
+	// console.log(preciousCrushList)
+if(preciousCrushList.cl.length===5){
+	return res.status(200).json({msg:'Your crush list is full',error:true})
+}
+ const crush = await User.findOne({ fbId: req.body.crushId })
     const newCrushList = [...preciousCrushList.cl, req.body.crushId]
     await User.findOneAndUpdate({ fbId: req.body.id }, {
       cl: newCrushList
@@ -57,7 +62,7 @@ router.put('/addcrush', facebookMiddleware, async (req, res) => {
     let yourSide, crushSide = false
 
     const you = await User.findOne({ fbId: req.body.id })
-    const crush = await User.findOne({ fbId: req.body.crushId })
+   
 
     you.cl.map(x => { x == crush.fbId ? yourSide = true : null })
     crush.cl.map(y => { y == you.fbId ? crushSide = true : null })
@@ -74,9 +79,9 @@ router.put('/addcrush', facebookMiddleware, async (req, res) => {
         matchto: you._id
       }).save()
 
-      res.status(200).json('found crush')
+      res.status(200).json({msg:'Congrats , match with your crush 💕',error:false,match:true})
     } else {
-      res.status(200).json('not match')
+      res.status(200).json({msg:'Added Successfully!',error:false,match:false})
     }
   } catch (error) {
     console.log(error)
